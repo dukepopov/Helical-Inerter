@@ -450,10 +450,10 @@ package HelicalInerterPackage
       Placement(transformation(origin = {24, -70}, extent = {{-10, -10}, {10, 10}}, rotation = -90)));
     Modelica.Mechanics.MultiBody.Parts.BodyBox bodyBox(height = 0.06, length = 0.06, r = {0, -0.01, 0}, width = 0.2, density = 0) annotation(
       Placement(transformation(origin = {-12, -70}, extent = {{-10, -10}, {10, 10}}, rotation = -90)));
-    Modelica.Mechanics.Rotational.Components.IdealGearR2T idealGearR2T(ratio = 2) annotation(
-      Placement(transformation(origin = {86, -40}, extent = {{-10, -10}, {10, 10}})));
-  Modelica.Mechanics.Rotational.Sensors.TorqueSensor torqueSensor annotation(
-      Placement(transformation(origin = {92, -80}, extent = {{-10, -10}, {10, 10}})));
+  Modelica.Mechanics.Rotational.Components.IdealGearR2T idealGearR2T(ratio = 12.566) annotation(
+      Placement(transformation(origin = {80, -40}, extent = {{-10, -10}, {10, 10}})));
+  Modelica.Mechanics.Translational.Components.Spring spring(c = 30, s_rel0 = 0.1)  annotation(
+      Placement(transformation(origin = {72, -2}, extent = {{-10, -10}, {10, 10}}, rotation = -90)));
   equation
 // Send [0, prismatic.s, 0] to leadScrew.u_abs
 //  leadScrew.s = prismatic.s;
@@ -471,20 +471,76 @@ package HelicalInerterPackage
       Line(points = {{24, -60}, {24, -50}}, color = {95, 95, 95}));
     connect(bodyBox.frame_a, body.frame_a) annotation(
       Line(points = {{-12, -60}, {24, -60}}, color = {95, 95, 95}));
-    connect(prismatic.axis, idealGearR2T.flangeT) annotation(
-      Line(points = {{30, -18}, {96, -18}, {96, -40}}, color = {0, 127, 0}));
-    connect(idealGearR2T.flangeR, revolute.axis) annotation(
-      Line(points = {{76, -40}, {34, -40}}));
-  connect(torqueSensor.flange_a, revolute.axis) annotation(
-      Line(points = {{82, -80}, {34, -80}, {34, -40}}));
-  connect(torqueSensor.flange_b, revolute.support) annotation(
-      Line(points = {{102, -80}, {90, -80}, {90, -34}, {34, -34}}));
+    connect(revolute.axis, idealGearR2T.flangeR) annotation(
+      Line(points = {{34, -40}, {70, -40}}));
+    connect(idealGearR2T.flangeT, prismatic.axis) annotation(
+      Line(points = {{90, -40}, {90, -18}, {30, -18}}, color = {0, 127, 0}));
+    connect(spring.flange_a, prismatic.support) annotation(
+      Line(points = {{72, 8}, {30, 8}, {30, -6}}, color = {0, 127, 0}));
+    connect(spring.flange_b, prismatic.axis) annotation(
+      Line(points = {{72, -12}, {72, -18}, {30, -18}}, color = {0, 127, 0}));
     annotation(
       experiment(StartTime = 0, StopTime = 10, Tolerance = 1e-6, Interval = 0.002),
       uses(Modelica(version = "4.0.0")),
       Diagram(coordinateSystem(extent = {{-80, 60}, {160, -120}})));
   end GearTest;
-  
+  model GearTest2
+  inner Modelica.Mechanics.MultiBody.World world(gravityType = Modelica.Mechanics.MultiBody.Types.GravityTypes.UniformGravity) annotation(
+    Placement(transformation(origin = {-60, 28}, extent = {{-10, -10}, {10, 10}})));
+  Modelica.Mechanics.MultiBody.Parts.FixedTranslation bar2(r = {0.3, 0, 0}) annotation(
+    Placement(transformation(origin = {-24, -2}, extent = {{0, 20}, {20, 40}})));
+  Modelica.Mechanics.MultiBody.Joints.Prismatic prismatic(n = {0, -1, 0}, useAxisFlange = true, s(start = 0.1)) annotation(
+    Placement(transformation(origin = {24, -10}, extent = {{-10, -10}, {10, 10}}, rotation = -90)));
+  Modelica.Mechanics.MultiBody.Joints.Revolute revolute(useAxisFlange = true, cylinderLength = 0.2, n = {0, 1, 0}) annotation(
+    Placement(transformation(origin = {24, -40}, extent = {{-10, -10}, {10, 10}}, rotation = -90)));
+  // Rotation angle in radians
+  Modelica.Mechanics.MultiBody.Sensors.AbsoluteSensor absoluteSensor(get_a = true) annotation(
+    Placement(transformation(origin = {132, -60}, extent = {{-10, -10}, {10, 10}})));
+  Modelica.Mechanics.MultiBody.Sensors.AbsoluteSensor absoluteSensor1(get_a = true) annotation(
+    Placement(transformation(origin = {106, 48}, extent = {{-10, -10}, {10, 10}})));
+  Modelica.Mechanics.MultiBody.Parts.Body body(sphereDiameter = 0.2, m = 5, I_33 = 0.08) annotation(
+    Placement(transformation(origin = {24, -70}, extent = {{-10, -10}, {10, 10}}, rotation = -90)));
+  Modelica.Mechanics.MultiBody.Parts.BodyBox bodyBox(height = 0.06, length = 0.06, r = {0, -0.01, 0}, width = 0.2, density = 0) annotation(
+    Placement(transformation(origin = {-12, -70}, extent = {{-10, -10}, {10, 10}}, rotation = -90)));
+Modelica.Mechanics.Rotational.Components.IdealGearR2T idealGearR2T(ratio = 12.566)  annotation(
+    Placement(transformation(origin = {80, -40}, extent = {{-10, -10}, {10, 10}})));
+Modelica.Mechanics.Translational.Components.Spring spring(c = 30, s_rel0 = 0.1)  annotation(
+    Placement(transformation(origin = {72, -2}, extent = {{-10, -10}, {10, 10}}, rotation = -90)));
+  Modelica.Mechanics.Rotational.Components.Inertia inertia(J = 0.08)  annotation(
+      Placement(transformation(origin = {80, -70}, extent = {{-10, -10}, {10, 10}})));
+  equation
+// Send [0, prismatic.s, 0] to leadScrew.u_abs
+//  leadScrew.s = prismatic.s;
+    connect(world.frame_b, bar2.frame_a) annotation(
+      Line(points = {{-50, 28}, {-24, 28}}, color = {95, 95, 95}));
+    connect(bar2.frame_b, prismatic.frame_a) annotation(
+      Line(points = {{-4, 28}, {22, 28}, {22, 0}, {24, 0}}, color = {95, 95, 95}));
+    connect(prismatic.frame_b, revolute.frame_a) annotation(
+      Line(points = {{24, -20}, {24, -30}}, color = {95, 95, 95}));
+    connect(absoluteSensor1.frame_a, bar2.frame_b) annotation(
+      Line(points = {{96, 48}, {4, 48}, {4, 28}, {-4, 28}}, color = {95, 95, 95}));
+    connect(absoluteSensor.frame_a, body.frame_a) annotation(
+      Line(points = {{122, -60}, {24, -60}}, color = {95, 95, 95}));
+    connect(body.frame_a, revolute.frame_b) annotation(
+      Line(points = {{24, -60}, {24, -50}}, color = {95, 95, 95}));
+    connect(bodyBox.frame_a, body.frame_a) annotation(
+      Line(points = {{-12, -60}, {24, -60}}, color = {95, 95, 95}));
+    connect(revolute.axis, idealGearR2T.flangeR) annotation(
+      Line(points = {{34, -40}, {70, -40}}));
+    connect(idealGearR2T.flangeT, prismatic.axis) annotation(
+      Line(points = {{90, -40}, {90, -18}, {30, -18}}, color = {0, 127, 0}));
+    connect(spring.flange_a, prismatic.support) annotation(
+      Line(points = {{72, 8}, {30, 8}, {30, -6}}, color = {0, 127, 0}));
+    connect(spring.flange_b, prismatic.axis) annotation(
+      Line(points = {{72, -12}, {72, -18}, {30, -18}}, color = {0, 127, 0}));
+  connect(inertia.flange_a, idealGearR2T.flangeR) annotation(
+      Line(points = {{70, -70}, {70, -40}}));
+    annotation(
+    experiment(StartTime = 0, StopTime = 10, Tolerance = 1e-6, Interval = 0.002),
+    uses(Modelica(version = "4.0.0")),
+    Diagram(coordinateSystem(extent = {{-80, 60}, {160, -120}})));
+end GearTest2;
+
   annotation(
     uses(Modelica(version = "4.0.0")));
 end HelicalInerterPackage;
