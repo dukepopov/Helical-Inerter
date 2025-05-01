@@ -1,0 +1,3 @@
+LOG_STDOUT        | warning | simulation_input_xml.c: override variable name not found in model: sine1.f[2]
+LOG_SUCCESS       | info    | The initialization finished successfully without homotopy method.
+LOG_SUCCESS       | info    | The simulation finished successfully.

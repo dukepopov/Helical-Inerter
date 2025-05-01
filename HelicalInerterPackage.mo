@@ -623,6 +623,53 @@ package HelicalInerterPackage
       Diagram(coordinateSystem(extent = {{-60, 60}, {100, -140}})));
   end GearTestTwoBody;
 
+  model SingleBodyInerter12
+    inner Modelica.Mechanics.MultiBody.World world(gravityType = Modelica.Mechanics.MultiBody.Types.GravityTypes.NoGravity) annotation(
+      Placement(transformation(origin = {-48, 28}, extent = {{-10, -10}, {10, 10}})));
+    Modelica.Mechanics.MultiBody.Parts.FixedTranslation bar2(r = {0.3, 0, 0}) annotation(
+      Placement(transformation(origin = {-24, -2}, extent = {{0, 20}, {20, 40}})));
+    Modelica.Mechanics.MultiBody.Joints.Prismatic prismatic(n = {0, 1, 0}, useAxisFlange = true, s(start = 1, fixed = true)) annotation(
+      Placement(transformation(origin = {24, -10}, extent = {{-10, -10}, {10, 10}}, rotation = -90)));
+    Modelica.Mechanics.MultiBody.Joints.Revolute revolute(useAxisFlange = true, cylinderLength = 0.2, n = {0, 1, 0}) annotation(
+      Placement(transformation(origin = {24, -40}, extent = {{-10, -10}, {10, 10}}, rotation = -90)));
+    // Rotation angle in radians
+    Modelica.Mechanics.MultiBody.Sensors.AbsoluteSensor SingleBodyNoInerter(get_a = true, get_r = true, get_v = true) annotation(
+      Placement(transformation(origin = {66, -60}, extent = {{-10, -10}, {10, 10}})));
+    Modelica.Mechanics.MultiBody.Sensors.AbsoluteSensor absoluteSensor1(get_a = true) annotation(
+      Placement(transformation(origin = {78, 28}, extent = {{-10, -10}, {10, 10}})));
+    Modelica.Mechanics.MultiBody.Parts.Body body(sphereDiameter = 0.2, m = 100) annotation(
+      Placement(transformation(origin = {24, -70}, extent = {{-10, -10}, {10, 10}}, rotation = -90)));
+    Modelica.Mechanics.MultiBody.Parts.BodyBox bodyBox(height = 0.06, length = 0.06, r = {0, -0.01, 0}, width = 0.2, density = 0) annotation(
+      Placement(transformation(origin = {-46, -70}, extent = {{-10, -10}, {10, 10}}, rotation = -90)));
+    Modelica.Mechanics.Translational.Components.Spring spring(c = 4000, s_rel0 = 0, s_rel(start = 0)) annotation(
+      Placement(transformation(origin = {50, -12}, extent = {{-10, -10}, {10, 10}}, rotation = -90)));
+  equation
+// Send [0, prismatic.s, 0] to leadScrew.u_abs
+//  leadScrew.s = prismatic.s;
+    connect(world.frame_b, bar2.frame_a) annotation(
+      Line(points = {{-38, 28}, {-24, 28}}, color = {95, 95, 95}));
+    connect(bar2.frame_b, prismatic.frame_a) annotation(
+      Line(points = {{-4, 28}, {22, 28}, {22, 0}, {24, 0}}, color = {95, 95, 95}));
+    connect(prismatic.frame_b, revolute.frame_a) annotation(
+      Line(points = {{24, -20}, {24, -30}}, color = {95, 95, 95}));
+    connect(absoluteSensor1.frame_a, bar2.frame_b) annotation(
+      Line(points = {{68, 28}, {-4, 28}}, color = {95, 95, 95}));
+    connect(SingleBodyNoInerter.frame_a, body.frame_a) annotation(
+      Line(points = {{56, -60}, {24, -60}}, color = {95, 95, 95}));
+    connect(body.frame_a, revolute.frame_b) annotation(
+      Line(points = {{24, -60}, {24, -50}}, color = {95, 95, 95}));
+    connect(bodyBox.frame_a, body.frame_a) annotation(
+      Line(points = {{-46, -60}, {24, -60}}, color = {95, 95, 95}));
+    connect(spring.flange_a, prismatic.support) annotation(
+      Line(points = {{50, -2}, {41, -2}, {41, -6}, {30, -6}}, color = {0, 127, 0}));
+    connect(spring.flange_b, prismatic.axis) annotation(
+      Line(points = {{50, -22}, {41, -22}, {41, -18}, {30, -18}}, color = {0, 127, 0}));
+    annotation(
+      experiment(StartTime = 0, StopTime = 10, Tolerance = 1e-6, Interval = 0.002),
+      uses(Modelica(version = "4.0.0")),
+      Diagram(coordinateSystem(extent = {{-80, 60}, {160, -120}})));
+  end SingleBodyInerter12;
+
   model SingleBodyInerter2
     inner Modelica.Mechanics.MultiBody.World world(gravityType = Modelica.Mechanics.MultiBody.Types.GravityTypes.NoGravity) annotation(
       Placement(transformation(origin = {-48, 28}, extent = {{-10, -10}, {10, 10}})));
@@ -633,19 +680,19 @@ package HelicalInerterPackage
     Modelica.Mechanics.MultiBody.Joints.Revolute revolute(useAxisFlange = true, cylinderLength = 0.2, n = {0, 1, 0}) annotation(
       Placement(transformation(origin = {24, -40}, extent = {{-10, -10}, {10, 10}}, rotation = -90)));
     // Rotation angle in radians
-    Modelica.Mechanics.MultiBody.Sensors.AbsoluteSensor absoluteSensor(get_a = true, get_r = true, get_v = true) annotation(
+    Modelica.Mechanics.MultiBody.Sensors.AbsoluteSensor SingleBodyWithInerter(get_a = true, get_r = true, get_v = true) annotation(
       Placement(transformation(origin = {66, -60}, extent = {{-10, -10}, {10, 10}})));
     Modelica.Mechanics.MultiBody.Sensors.AbsoluteSensor absoluteSensor1(get_a = true) annotation(
       Placement(transformation(origin = {78, 28}, extent = {{-10, -10}, {10, 10}})));
-    Modelica.Mechanics.MultiBody.Parts.Body body(sphereDiameter = 0.2, m = 100, I_33 = 40) annotation(
+    Modelica.Mechanics.MultiBody.Parts.Body body(sphereDiameter = 0.2, m = 100) annotation(
       Placement(transformation(origin = {24, -70}, extent = {{-10, -10}, {10, 10}}, rotation = -90)));
     Modelica.Mechanics.MultiBody.Parts.BodyBox bodyBox(height = 0.06, length = 0.06, r = {0, -0.01, 0}, width = 0.2, density = 0) annotation(
-      Placement(transformation(origin = {-76, -70}, extent = {{-10, -10}, {10, 10}}, rotation = -90)));
-    Modelica.Mechanics.Translational.Components.Spring spring(c = 10, s_rel0 = 0, s_rel(start = 0)) annotation(
+      Placement(transformation(origin = {-46, -70}, extent = {{-10, -10}, {10, 10}}, rotation = -90)));
+    Modelica.Mechanics.Translational.Components.Spring spring(c = 4000, s_rel0 = 0, s_rel(start = 0)) annotation(
       Placement(transformation(origin = {50, -12}, extent = {{-10, -10}, {10, 10}}, rotation = -90)));
-    Modelica.Mechanics.Rotational.Components.Inertia inertia(J = 40) annotation(
+  Modelica.Mechanics.Rotational.Components.Inertia inertia(J = 1) annotation(
       Placement(transformation(origin = {118, -62}, extent = {{-10, -10}, {10, 10}})));
-    Modelica.Mechanics.Translational.Components.IdealGearR2T idealGearR2T(ratio = 62.832) annotation(
+  Modelica.Mechanics.Translational.Components.IdealGearR2T idealGearR2T(ratio = 10) annotation(
       Placement(transformation(origin = {100, -40}, extent = {{-10, -10}, {10, 10}})));
   equation
 // Send [0, prismatic.s, 0] to leadScrew.u_abs
@@ -658,12 +705,12 @@ package HelicalInerterPackage
       Line(points = {{24, -20}, {24, -30}}, color = {95, 95, 95}));
     connect(absoluteSensor1.frame_a, bar2.frame_b) annotation(
       Line(points = {{68, 28}, {-4, 28}}, color = {95, 95, 95}));
-    connect(absoluteSensor.frame_a, body.frame_a) annotation(
+    connect(SingleBodyWithInerter.frame_a, body.frame_a) annotation(
       Line(points = {{56, -60}, {24, -60}}, color = {95, 95, 95}));
     connect(body.frame_a, revolute.frame_b) annotation(
       Line(points = {{24, -60}, {24, -50}}, color = {95, 95, 95}));
     connect(bodyBox.frame_a, body.frame_a) annotation(
-      Line(points = {{-76, -60}, {24, -60}}, color = {95, 95, 95}));
+      Line(points = {{-46, -60}, {24, -60}}, color = {95, 95, 95}));
     connect(spring.flange_a, prismatic.support) annotation(
       Line(points = {{50, -2}, {41, -2}, {41, -6}, {30, -6}}, color = {0, 127, 0}));
     connect(spring.flange_b, prismatic.axis) annotation(
@@ -680,144 +727,146 @@ package HelicalInerterPackage
       Diagram(coordinateSystem(extent = {{-80, 60}, {160, -120}})));
   end SingleBodyInerter2;
 
-  model HelicalTwoBody
-    inner Modelica.Mechanics.MultiBody.World world(gravityType = Modelica.Mechanics.MultiBody.Types.GravityTypes.NoGravity) annotation(
-      Placement(transformation(origin = {-50, 46}, extent = {{-10, -10}, {10, 10}})));
+  model HelicalTwoBodyNoInerter
+  inner Modelica.Mechanics.MultiBody.World world(gravityType = Modelica.Mechanics.MultiBody.Types.GravityTypes.NoGravity) annotation(
+      Placement(transformation(origin = {-134, 6}, extent = {{-10, -10}, {10, 10}})));
     Modelica.Mechanics.MultiBody.Parts.FixedTranslation bar2(r = {0.3, 0, 0}) annotation(
-      Placement(transformation(origin = {-26, 16}, extent = {{0, 20}, {20, 40}})));
+      Placement(transformation(origin = {-110, -24}, extent = {{0, 20}, {20, 40}})));
     // Rotation angle in radians
     Modelica.Mechanics.MultiBody.Joints.Prismatic prismatic1(n = {0, 1, 0}, useAxisFlange = true, s(start = 0, fixed = true)) annotation(
-      Placement(transformation(origin = {24, 36}, extent = {{-10, -10}, {10, 10}}, rotation = -90)));
-    Modelica.Mechanics.Translational.Components.Spring spring1(c = 1000, s_rel0 = 0) annotation(
-      Placement(transformation(origin = {50, 34}, extent = {{-10, -10}, {10, 10}}, rotation = -90)));
-    Modelica.Mechanics.MultiBody.Parts.Body body1(m = 1000, sphereDiameter = 0.2) annotation(
-      Placement(transformation(origin = {44, 0}, extent = {{-10, -10}, {10, 10}})));
+      Placement(transformation(origin = {-60, 6}, extent = {{-10, -10}, {10, 10}})));
+    Modelica.Mechanics.Translational.Components.Spring spring1(c = 4000, s_rel0 = 0) annotation(
+      Placement(transformation(origin = {-58, 28}, extent = {{-10, -10}, {10, 10}})));
+    Modelica.Mechanics.MultiBody.Parts.Body LowerBody(m = 100, sphereDiameter = 0.2) annotation(
+      Placement(transformation(origin = {-26, 6}, extent = {{-10, -10}, {10, 10}})));
     Modelica.Mechanics.MultiBody.Joints.Prismatic prismatic(n = {0, 1, 0}, useAxisFlange = true, s(start = 0, fixed = true)) annotation(
-      Placement(transformation(origin = {24, -52}, extent = {{-10, -10}, {10, 10}}, rotation = -90)));
+      Placement(transformation(origin = {36, 6}, extent = {{-10, -10}, {10, 10}})));
     Modelica.Mechanics.MultiBody.Joints.Revolute revolute(cylinderLength = 0.2, n = {0, 1, 0}, useAxisFlange = true) annotation(
-      Placement(transformation(origin = {24, -82}, extent = {{-10, -10}, {10, 10}}, rotation = -90)));
-    Modelica.Mechanics.MultiBody.Sensors.AbsoluteSensor absoluteSensor2(get_a = true, get_r = true, get_v = true) annotation(
-      Placement(transformation(origin = {66, -102}, extent = {{-10, -10}, {10, 10}})));
-    Modelica.Mechanics.MultiBody.Parts.Body body(m = 1500, sphereDiameter = 0.2, I_33 = 135) annotation(
-      Placement(transformation(origin = {24, -112}, extent = {{-10, -10}, {10, 10}}, rotation = -90)));
+      Placement(transformation(origin = {64, 6}, extent = {{-10, -10}, {10, 10}})));
+    Modelica.Mechanics.MultiBody.Parts.Body TopBody(m = 150, sphereDiameter = 0.2) annotation(
+      Placement(transformation(origin = {100, 6}, extent = {{-10, -10}, {10, 10}})));
     Modelica.Mechanics.MultiBody.Parts.BodyBox bodyBox(density = 0, height = 0.06, length = 0.06, r = {0, -0.01, 0}, width = 0.2) annotation(
-      Placement(transformation(origin = {-28, -112}, extent = {{-10, -10}, {10, 10}}, rotation = -90)));
-    Modelica.Mechanics.MultiBody.Sensors.AbsoluteSensor absoluteSensor(get_a = true, get_r = true, get_v = true) annotation(
-      Placement(transformation(origin = {-20, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 180)));
+      Placement(transformation(origin = {78, -28}, extent = {{-10, -10}, {10, 10}}, rotation = -90)));
     Modelica.Mechanics.MultiBody.Parts.FixedTranslation bar21(r = {0, 1, 0}, animation = false) annotation(
-      Placement(transformation(origin = {-6, -14}, extent = {{0, 20}, {20, 40}}, rotation = -90)));
-  Modelica.Mechanics.Translational.Components.SpringDamper springDamper(c = 2000, d = 1000, s_rel0 = -1) annotation(
-      Placement(transformation(origin = {57, -55}, extent = {{-10, -10}, {10, 10}}, rotation = -90)));
+      Placement(transformation(origin = {-8, -24}, extent = {{0, 20}, {20, 40}})));
+    Modelica.Mechanics.Rotational.Sensors.TorqueSensor torqueSensor annotation(
+      Placement(transformation(origin = {74, 46}, extent = {{-10, -10}, {10, 10}})));
+    Modelica.Mechanics.Translational.Components.Spring spring11(c = 2000, s_rel0 = -1) annotation(
+      Placement(transformation(origin = {36, 31}, extent = {{-10, -10}, {10, 10}})));
+  Modelica.Mechanics.MultiBody.Sensors.AbsoluteSensor UnsprungMassNoInerter(get_a = true, get_r = true, get_v = true) annotation(
+      Placement(transformation(origin = {7, 56}, extent = {{-10, -10}, {10, 10}})));
+  Modelica.Mechanics.MultiBody.Sensors.AbsoluteSensor SprungMassNoInerter(get_a = true, get_r = true, get_v = true) annotation(
+      Placement(transformation(origin = {118, 21}, extent = {{-10, -10}, {10, 10}})));
   equation
     connect(world.frame_b, bar2.frame_a) annotation(
-      Line(points = {{-40, 46}, {-26, 46}}, color = {95, 95, 95}));
-    connect(prismatic1.frame_b, body1.frame_a) annotation(
-      Line(points = {{24, 26}, {24, 13}, {34, 13}, {34, 0}}, color = {95, 95, 95}));
+      Line(points = {{-124, 6}, {-110, 6}}, color = {95, 95, 95}));
+    connect(prismatic1.frame_b, LowerBody.frame_a) annotation(
+      Line(points = {{-50, 6}, {-36, 6}}, color = {95, 95, 95}));
     connect(bar2.frame_b, prismatic1.frame_a) annotation(
-      Line(points = {{-6, 46}, {24, 46}}, color = {95, 95, 95}));
+      Line(points = {{-90, 6}, {-70, 6}}, color = {95, 95, 95}));
     connect(spring1.flange_a, prismatic1.support) annotation(
-      Line(points = {{50, 44}, {40, 44}, {40, 40}, {30, 40}}, color = {0, 127, 0}));
+      Line(points = {{-68, 28}, {-68, 12}, {-64, 12}}, color = {0, 127, 0}));
     connect(spring1.flange_b, prismatic1.axis) annotation(
-      Line(points = {{50, 24}, {40, 24}, {40, 28}, {30, 28}}, color = {0, 127, 0}));
+      Line(points = {{-48, 28}, {-50, 28}, {-50, 12}, {-52, 12}}, color = {0, 127, 0}));
     connect(prismatic.frame_b, revolute.frame_a) annotation(
-      Line(points = {{24, -62}, {24, -72}}, color = {95, 95, 95}));
-    connect(absoluteSensor2.frame_a, body.frame_a) annotation(
-      Line(points = {{56, -102}, {24, -102}}, color = {95, 95, 95}));
-    connect(body.frame_a, revolute.frame_b) annotation(
-      Line(points = {{24, -102}, {24, -92}}, color = {95, 95, 95}));
-    connect(absoluteSensor.frame_a, body1.frame_a) annotation(
-      Line(points = {{-10, 0}, {34, 0}}, color = {95, 95, 95}));
+      Line(points = {{46, 6}, {54, 6}}, color = {95, 95, 95}));
+    connect(TopBody.frame_a, revolute.frame_b) annotation(
+      Line(points = {{90, 6}, {74, 6}}, color = {95, 95, 95}));
     connect(prismatic.frame_a, bar21.frame_b) annotation(
-      Line(points = {{24, -42}, {24, -34}}, color = {95, 95, 95}));
-    connect(bar21.frame_a, body1.frame_a) annotation(
-      Line(points = {{24, -14}, {24, 0}, {34, 0}}, color = {95, 95, 95}));
-    connect(bodyBox.frame_a, body.frame_a) annotation(
-      Line(points = {{-28, -102}, {24, -102}}, color = {95, 95, 95}));
-  connect(springDamper.flange_a, prismatic.support) annotation(
-      Line(points = {{58, -44}, {30, -44}, {30, -48}}, color = {0, 127, 0}));
-  connect(springDamper.flange_b, prismatic.axis) annotation(
-      Line(points = {{58, -64}, {30, -64}, {30, -60}}, color = {0, 127, 0}));
+      Line(points = {{26, 6}, {12, 6}}, color = {95, 95, 95}));
+    connect(bar21.frame_a, LowerBody.frame_a) annotation(
+      Line(points = {{-8, 6}, {-36, 6}}, color = {95, 95, 95}));
+    connect(bodyBox.frame_a, TopBody.frame_a) annotation(
+      Line(points = {{78, -18}, {79, -18}, {79, 6}, {90, 6}}, color = {95, 95, 95}));
+    connect(torqueSensor.flange_a, revolute.axis) annotation(
+      Line(points = {{64, 46}, {64, 16}}));
+    connect(spring11.flange_b, prismatic.axis) annotation(
+      Line(points = {{46, 31}, {46, 18.5}, {44, 18.5}, {44, 12}}, color = {0, 127, 0}));
+    connect(spring11.flange_a, prismatic.support) annotation(
+      Line(points = {{26, 31}, {26, 12}, {32, 12}}, color = {0, 127, 0}));
+    connect(UnsprungMassNoInerter.frame_a, LowerBody.frame_a) annotation(
+      Line(points = {{-3, 56}, {-10.5, 56}, {-10.5, 6}, {-36, 6}}, color = {95, 95, 95}));
+  connect(TopBody.frame_a, SprungMassNoInerter.frame_a) annotation(
+      Line(points = {{90, 6}, {90, 22}, {108, 22}}, color = {95, 95, 95}));
     annotation(
       experiment(StartTime = 0, StopTime = 10, Tolerance = 1e-6, Interval = 0.002),
       uses(Modelica(version = "4.0.0")),
-      Diagram(coordinateSystem(extent = {{-60, 60}, {100, -140}})));
-  end HelicalTwoBody;
+      Diagram(coordinateSystem(extent = {{-160, 80}, {140, -40}})));
+  end HelicalTwoBodyNoInerter;
 
   model HelicalTwoBodyInerter
-    inner Modelica.Mechanics.MultiBody.World world(gravityType = Modelica.Mechanics.MultiBody.Types.GravityTypes.NoGravity) annotation(
-      Placement(transformation(origin = {-50, 46}, extent = {{-10, -10}, {10, 10}})));
+  inner Modelica.Mechanics.MultiBody.World world(gravityType = Modelica.Mechanics.MultiBody.Types.GravityTypes.NoGravity) annotation(
+      Placement(transformation(origin = {-134, 6}, extent = {{-10, -10}, {10, 10}})));
     Modelica.Mechanics.MultiBody.Parts.FixedTranslation bar2(r = {0.3, 0, 0}) annotation(
-      Placement(transformation(origin = {-26, 16}, extent = {{0, 20}, {20, 40}})));
-  // Rotation angle in radians
+      Placement(transformation(origin = {-110, -24}, extent = {{0, 20}, {20, 40}})));
+    // Rotation angle in radians
     Modelica.Mechanics.MultiBody.Joints.Prismatic prismatic1(n = {0, 1, 0}, useAxisFlange = true, s(start = 0, fixed = true)) annotation(
-      Placement(transformation(origin = {24, 36}, extent = {{-10, -10}, {10, 10}}, rotation = -90)));
-    Modelica.Mechanics.Translational.Components.Spring spring1(c = 1000, s_rel0 = 0) annotation(
-      Placement(transformation(origin = {50, 34}, extent = {{-10, -10}, {10, 10}}, rotation = -90)));
-    Modelica.Mechanics.MultiBody.Parts.Body body1(m = 1500, sphereDiameter = 0.2) annotation(
-      Placement(transformation(origin = {44, 0}, extent = {{-10, -10}, {10, 10}})));
+      Placement(transformation(origin = {-60, 6}, extent = {{-10, -10}, {10, 10}})));
+    Modelica.Mechanics.Translational.Components.Spring spring1(c = 4000, s_rel0 = 0) annotation(
+      Placement(transformation(origin = {-58, 28}, extent = {{-10, -10}, {10, 10}})));
+    Modelica.Mechanics.MultiBody.Parts.Body LowerBody(m = 100, sphereDiameter = 0.2) annotation(
+      Placement(transformation(origin = {-26, 6}, extent = {{-10, -10}, {10, 10}})));
     Modelica.Mechanics.MultiBody.Joints.Prismatic prismatic(n = {0, 1, 0}, useAxisFlange = true, s(start = 0, fixed = true)) annotation(
-      Placement(transformation(origin = {24, -52}, extent = {{-10, -10}, {10, 10}}, rotation = -90)));
+      Placement(transformation(origin = {36, 6}, extent = {{-10, -10}, {10, 10}})));
     Modelica.Mechanics.MultiBody.Joints.Revolute revolute(cylinderLength = 0.2, n = {0, 1, 0}, useAxisFlange = true) annotation(
-      Placement(transformation(origin = {24, -82}, extent = {{-10, -10}, {10, 10}}, rotation = -90)));
-    Modelica.Mechanics.MultiBody.Sensors.AbsoluteSensor absoluteSensor2(get_a = true, get_r = true, get_v = true) annotation(
-      Placement(transformation(origin = {66, -102}, extent = {{-10, -10}, {10, 10}})));
-    Modelica.Mechanics.MultiBody.Parts.Body body(m = 1000, sphereDiameter = 0.2) annotation(
-      Placement(transformation(origin = {24, -112}, extent = {{-10, -10}, {10, 10}}, rotation = -90)));
+      Placement(transformation(origin = {64, 6}, extent = {{-10, -10}, {10, 10}})));
+    Modelica.Mechanics.MultiBody.Parts.Body TopBody(m = 150, sphereDiameter = 0.2) annotation(
+      Placement(transformation(origin = {100, 6}, extent = {{-10, -10}, {10, 10}})));
     Modelica.Mechanics.MultiBody.Parts.BodyBox bodyBox(density = 0, height = 0.06, length = 0.06, r = {0, -0.01, 0}, width = 0.2) annotation(
-      Placement(transformation(origin = {-28, -112}, extent = {{-10, -10}, {10, 10}}, rotation = -90)));
-    Modelica.Mechanics.MultiBody.Sensors.AbsoluteSensor absoluteSensor(get_a = true, get_r = true, get_v = true) annotation(
-      Placement(transformation(origin = {-20, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 180)));
+      Placement(transformation(origin = {78, -28}, extent = {{-10, -10}, {10, 10}}, rotation = -90)));
     Modelica.Mechanics.MultiBody.Parts.FixedTranslation bar21(r = {0, 1, 0}, animation = false) annotation(
-      Placement(transformation(origin = {-6, -14}, extent = {{0, 20}, {20, 40}}, rotation = -90)));
-    Modelica.Mechanics.Translational.Components.IdealGearR2T idealGearR2T(ratio = 62.832) annotation(
-      Placement(transformation(origin = {90, -82}, extent = {{-10, -10}, {10, 10}})));
-    Modelica.Mechanics.Rotational.Components.Inertia inertia(J = 0.38) annotation(
-      Placement(transformation(origin = {92, -112}, extent = {{-10, -10}, {10, 10}})));
-  Modelica.Mechanics.Rotational.Sensors.TorqueSensor torqueSensor annotation(
-      Placement(transformation(origin = {122, -40}, extent = {{-10, -10}, {10, 10}})));
-  Modelica.Mechanics.Translational.Components.SpringDamper springDamper(c = 1200, d = 940, s_rel0 = -1)  annotation(
-      Placement(transformation(origin = {48, -52}, extent = {{-10, -10}, {10, 10}}, rotation = -90)));
+      Placement(transformation(origin = {-8, -24}, extent = {{0, 20}, {20, 40}})));
+    Modelica.Mechanics.Rotational.Sensors.TorqueSensor torqueSensor annotation(
+      Placement(transformation(origin = {74, 46}, extent = {{-10, -10}, {10, 10}})));
+    Modelica.Mechanics.Translational.Components.Spring spring11(c = 2000, s_rel0 = -1) annotation(
+      Placement(transformation(origin = {36, 31}, extent = {{-10, -10}, {10, 10}})));
+  Modelica.Mechanics.MultiBody.Sensors.AbsoluteSensor UnsprungMassInerter(get_a = true, get_r = true, get_v = true) annotation(
+      Placement(transformation(origin = {7, 56}, extent = {{-10, -10}, {10, 10}})));
+  Modelica.Mechanics.MultiBody.Sensors.AbsoluteSensor SprungMassInerter(get_a = true, get_r = true, get_v = true) annotation(
+      Placement(transformation(origin = {118, 21}, extent = {{-10, -10}, {10, 10}})));
+  Modelica.Mechanics.Translational.Components.IdealGearR2T idealGearR2T(ratio = 10) annotation(
+      Placement(transformation(origin = {45, 74}, extent = {{-10, -10}, {10, 10}}, rotation = 180)));
+  Modelica.Mechanics.Rotational.Components.Inertia inertia(J = 1) annotation(
+      Placement(transformation(origin = {77, 74}, extent = {{-10, -10}, {10, 10}})));
   equation
     connect(world.frame_b, bar2.frame_a) annotation(
-      Line(points = {{-40, 46}, {-26, 46}}, color = {95, 95, 95}));
-    connect(prismatic1.frame_b, body1.frame_a) annotation(
-      Line(points = {{24, 26}, {24, 13}, {34, 13}, {34, 0}}, color = {95, 95, 95}));
+      Line(points = {{-124, 6}, {-110, 6}}, color = {95, 95, 95}));
+    connect(prismatic1.frame_b, LowerBody.frame_a) annotation(
+      Line(points = {{-50, 6}, {-36, 6}}, color = {95, 95, 95}));
     connect(bar2.frame_b, prismatic1.frame_a) annotation(
-      Line(points = {{-6, 46}, {24, 46}}, color = {95, 95, 95}));
+      Line(points = {{-90, 6}, {-70, 6}}, color = {95, 95, 95}));
     connect(spring1.flange_a, prismatic1.support) annotation(
-      Line(points = {{50, 44}, {40, 44}, {40, 40}, {30, 40}}, color = {0, 127, 0}));
+      Line(points = {{-68, 28}, {-68, 12}, {-64, 12}}, color = {0, 127, 0}));
     connect(spring1.flange_b, prismatic1.axis) annotation(
-      Line(points = {{50, 24}, {40, 24}, {40, 28}, {30, 28}}, color = {0, 127, 0}));
+      Line(points = {{-48, 28}, {-50, 28}, {-50, 12}, {-52, 12}}, color = {0, 127, 0}));
     connect(prismatic.frame_b, revolute.frame_a) annotation(
-      Line(points = {{24, -62}, {24, -72}}, color = {95, 95, 95}));
-    connect(absoluteSensor2.frame_a, body.frame_a) annotation(
-      Line(points = {{56, -102}, {24, -102}}, color = {95, 95, 95}));
-    connect(body.frame_a, revolute.frame_b) annotation(
-      Line(points = {{24, -102}, {24, -92}}, color = {95, 95, 95}));
-    connect(absoluteSensor.frame_a, body1.frame_a) annotation(
-      Line(points = {{-10, 0}, {34, 0}}, color = {95, 95, 95}));
+      Line(points = {{46, 6}, {54, 6}}, color = {95, 95, 95}));
+    connect(TopBody.frame_a, revolute.frame_b) annotation(
+      Line(points = {{90, 6}, {74, 6}}, color = {95, 95, 95}));
     connect(prismatic.frame_a, bar21.frame_b) annotation(
-      Line(points = {{24, -42}, {24, -34}}, color = {95, 95, 95}));
-    connect(bar21.frame_a, body1.frame_a) annotation(
-      Line(points = {{24, -14}, {24, 0}, {34, 0}}, color = {95, 95, 95}));
-    connect(bodyBox.frame_a, body.frame_a) annotation(
-      Line(points = {{-28, -102}, {24, -102}}, color = {95, 95, 95}));
-    connect(idealGearR2T.flangeR, revolute.axis) annotation(
-      Line(points = {{80, -82}, {34, -82}}));
-    connect(idealGearR2T.flangeT, prismatic.axis) annotation(
-      Line(points = {{100, -82}, {102, -82}, {102, -60}, {30, -60}}, color = {0, 127, 0}));
-    connect(inertia.flange_a, idealGearR2T.flangeR) annotation(
-      Line(points = {{82, -112}, {80, -112}, {80, -82}}));
+      Line(points = {{26, 6}, {12, 6}}, color = {95, 95, 95}));
+    connect(bar21.frame_a, LowerBody.frame_a) annotation(
+      Line(points = {{-8, 6}, {-36, 6}}, color = {95, 95, 95}));
+    connect(bodyBox.frame_a, TopBody.frame_a) annotation(
+      Line(points = {{78, -18}, {79, -18}, {79, 6}, {90, 6}}, color = {95, 95, 95}));
     connect(torqueSensor.flange_a, revolute.axis) annotation(
-      Line(points = {{112, -40}, {68, -40}, {68, -82}, {34, -82}}));
-  connect(springDamper.flange_a, prismatic.support) annotation(
-      Line(points = {{48, -42}, {30, -42}, {30, -48}}, color = {0, 127, 0}));
-  connect(springDamper.flange_b, prismatic.axis) annotation(
-      Line(points = {{48, -62}, {36, -62}, {36, -60}, {30, -60}}, color = {0, 127, 0}));
+      Line(points = {{64, 46}, {64, 16}}));
+    connect(spring11.flange_b, prismatic.axis) annotation(
+      Line(points = {{46, 31}, {46, 18.5}, {44, 18.5}, {44, 12}}, color = {0, 127, 0}));
+    connect(spring11.flange_a, prismatic.support) annotation(
+      Line(points = {{26, 31}, {26, 12}, {32, 12}}, color = {0, 127, 0}));
+    connect(UnsprungMassInerter.frame_a, LowerBody.frame_a) annotation(
+      Line(points = {{-3, 56}, {-10.5, 56}, {-10.5, 6}, {-36, 6}}, color = {95, 95, 95}));
+    connect(TopBody.frame_a, SprungMassInerter.frame_a) annotation(
+      Line(points = {{90, 6}, {90, 22}, {108, 22}}, color = {95, 95, 95}));
+    connect(inertia.flange_a, idealGearR2T.flangeR) annotation(
+      Line(points = {{67, 74}, {53, 74}, {53, 75}, {55, 75}}));
+  connect(idealGearR2T.flangeT, prismatic.axis) annotation(
+      Line(points = {{36, 74}, {36, 12}, {44, 12}}, color = {0, 127, 0}));
     annotation(
       experiment(StartTime = 0, StopTime = 10, Tolerance = 1e-6, Interval = 0.002),
       uses(Modelica(version = "4.0.0")),
-      Diagram(coordinateSystem(extent = {{-60, 60}, {100, -140}})));
+      Diagram(coordinateSystem(extent = {{-160, 80}, {140, -40}})));
   end HelicalTwoBodyInerter;
 
   model BuildingCase1
